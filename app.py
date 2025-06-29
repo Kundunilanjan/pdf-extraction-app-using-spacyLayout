@@ -1,4 +1,4 @@
-%%writefile app.py
+
 import streamlit as st
 import spacy
 from spacy_layout import spaCyLayout
