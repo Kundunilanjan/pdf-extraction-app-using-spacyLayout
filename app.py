@@ -1,3 +1,4 @@
+%%writefile app.py
 import streamlit as st
 import spacy
 from spacy_layout import spaCyLayout
@@ -13,7 +14,7 @@ if uploaded_file:
         f.write(uploaded_file.read())
 
     # Load NLP pipeline
-    nlp = spacy.load("en_core_sci_sm")  # or "en_core_sci_sm"
+    nlp = spacy.load("en_core_web_sm")  # or "en_core_sci_sm"
     layout = spaCyLayout(nlp)
     doc = layout("temp.pdf")
 
