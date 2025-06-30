@@ -1,21 +1,26 @@
 import streamlit as st
 import spacy
-from spacy_layout import spaCyLayout
 import subprocess
 import sys
 
-# Load spaCy model with fallback installation
 @st.cache_resource
 def load_spacy_model():
     try:
+        # First try loading normally
         return spacy.load("en_core_web_sm")
     except OSError:
-        st.warning("Downloading spaCy model... (this happens once)")
-        subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-        return spacy.load("en_core_web_sm")
+        # If failed, install model directly
+        st.warning("Installing spaCy model... (first-time setup)")
+        try:
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+            return spacy.load("en_core_web_sm")
+        except:
+            # Fallback to direct URL installation
+            subprocess.check_call([sys.executable, "-m", "pip", "install", 
+                                 "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl"])
+            return spacy.load("en_core_web_sm")
 
-            # Usage
-            nlp = spacy.load("en_core_web_sm", exclude=["parser", "ner"])
+            nlp = load_spacy_model()  # Use this in your code
             layout = spaCyLayout(nlp)
             doc = layout("temp.pdf")
 
