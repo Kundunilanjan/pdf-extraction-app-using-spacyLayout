@@ -15,7 +15,7 @@ def load_spacy_model():
         return spacy.load("en_core_web_sm")
 
             # Usage
-            nlp = load_spacy_model()
+            nlp = spacy.load("en_core_web_sm", exclude=["parser", "ner"])
             layout = spaCyLayout(nlp)
             doc = layout("temp.pdf")
 
