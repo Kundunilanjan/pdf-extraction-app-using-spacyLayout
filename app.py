@@ -1,36 +1,20 @@
 import streamlit as st
 import spacy
 from spacy_layout import spaCyLayout
-import pandas as pd
-from collections import Counter
+import subprocess
+import sys
 
-# Set page config
-st.set_page_config(page_title="📄 PDF Extractor", layout="wide")
-st.title("📄 Extract Info from PDF using spaCyLayout")
-
-# Load spaCy model (with error handling)
+# Load spaCy model with fallback installation
 @st.cache_resource
 def load_spacy_model():
     try:
-        nlp = spacy.load("en_core_web_sm")
-        return nlp
+        return spacy.load("en_core_web_sm")
     except OSError:
-        st.error("The spaCy English model is not installed. Please wait while we download it...")
-        import subprocess
-        import sys
+        st.warning("Downloading spaCy model... (this happens once)")
         subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-        nlp = spacy.load("en_core_web_sm")
-        return nlp
+        return spacy.load("en_core_web_sm")
 
-uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
-if uploaded_file:
-    with st.spinner("Processing PDF..."):
-        try:
-            # Save the uploaded file temporarily
-            with open("temp.pdf", "wb") as f:
-                f.write(uploaded_file.read())
-
-            # Load models
+            # Usage
             nlp = load_spacy_model()
             layout = spaCyLayout(nlp)
             doc = layout("temp.pdf")
