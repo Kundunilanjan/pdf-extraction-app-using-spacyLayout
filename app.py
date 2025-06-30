@@ -13,28 +13,23 @@ if uploaded_file:
         f.write(uploaded_file.read())
 
     try:
-        # Load NLP pipeline
+        # Load spaCy model (no subprocess needed)
         nlp = spacy.load("en_core_web_sm")
         layout = spaCyLayout(nlp)
         doc = layout("temp.pdf")
 
-        # Display full text
+        # Full text
         st.subheader("📜 Full Text")
         st.text_area("Text", doc.text, height=300)
 
-        # Extract tables safely
+        # Tables
         st.subheader("📊 Tables")
         if doc._.tables:
             for i, table in enumerate(doc._.tables):
                 st.write(f"Table {i+1}")
-
                 raw_data = table._.data
                 df = pd.DataFrame(raw_data)
-
-                # Fix empty column names
                 df.columns = [col if str(col).strip() else f"Unnamed_{i}" for i, col in enumerate(df.columns)]
-
-                # Fix duplicate column names
                 counts = Counter()
                 new_cols = []
                 for col in df.columns:
@@ -44,12 +39,11 @@ if uploaded_file:
                     else:
                         new_cols.append(col)
                 df.columns = new_cols
-
                 st.dataframe(df)
         else:
             st.info("No tables detected.")
 
-        # Show layout-labeled spans (headers, footers, authors, abstracts, etc.)
+        # Spans
         st.subheader("🔍 Detected Spans (Headers, Abstracts, Authors, etc.)")
         if "layout" in doc.spans:
             for span in doc.spans["layout"]:
@@ -59,3 +53,4 @@ if uploaded_file:
 
     except Exception as e:
         st.error(f"Error while processing the PDF: {e}")
+
