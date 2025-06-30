@@ -1,5 +1,5 @@
 streamlit
 spacy
-spacy-layout
 pandas
-
+https://github.com/PKuf/spacy-layout/releases/download/v0.1.2/spacy_layout-0.1.2-py3-none-any.whl
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
