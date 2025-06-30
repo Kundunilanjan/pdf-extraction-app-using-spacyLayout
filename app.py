@@ -1,12 +1,8 @@
 import streamlit as st
-import subprocess
 import spacy
 from spacy_layout import spaCyLayout
 import pandas as pd
 from collections import Counter
-
-# Ensure model is downloaded
-subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
 
 st.set_page_config(page_title="📄 PDF Extractor", layout="wide")
 st.title("📄 Extract Info from PDF using spaCyLayout")
