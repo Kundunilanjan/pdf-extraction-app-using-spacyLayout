@@ -1,27 +1,48 @@
 import streamlit as st
 import spacy
-import subprocess
+from spacy_layout import spaCyLayout
+import os
 import sys
+from pathlib import Path
 
+# ---- SPAKY MODEL LOADER WITH COMPLETE ERROR HANDLING ----
 @st.cache_resource
-def load_spacy_model():
+def load_nlp_model():
     try:
-        # First try loading normally
+        # Try direct load first
         return spacy.load("en_core_web_sm")
     except OSError:
-        # If failed, install model directly
-        st.warning("Installing spaCy model... (first-time setup)")
-        try:
-            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-            return spacy.load("en_core_web_sm")
-        except:
-            # Fallback to direct URL installation
-            subprocess.check_call([sys.executable, "-m", "pip", "install", 
-                                 "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl"])
-            return spacy.load("en_core_web_sm")
+        st.warning("First-time setup: Installing spaCy model...")
+        
+        # Installation methods from most to least reliable
+        install_attempts = [
+            lambda: os.system(f"{sys.executable} -m spacy download en_core_web_sm"),
+            lambda: os.system(f"{sys.executable} -m pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz"),
+            lambda: os.system(f"{sys.executable} -m pip install en_core_web_sm")
+        ]
+        
+        for attempt in install_attempts:
+            if attempt() == 0:  # If installation succeeded
+                try:
+                    return spacy.load("en_core_web_sm")
+                except Exception as e:
+                    continue
+        
+        # If all attempts failed
+        model_path = Path(spacy.util.get_data_path()) / "en_core_web_sm"
+        st.error(f"""
+            Failed to load spaCy model. Please try:
+            1. Manually run: `python -m spacy download en_core_web_sm`
+            2. Check model exists at: {model_path}
+            3. Restart your application
+            """)
+        st.stop()
 
-            nlp = load_spacy_model()  # Use this in your code
-            layout = spaCyLayout(nlp)
+# Load model once when app starts
+           nlp = load_nlp_model()
+           layout = spaCyLayout(nlp)
+
+# ---- REST OF YOUR APP CODE ----
             doc = layout("temp.pdf")
 
             # Full text
